@@ -45,6 +45,10 @@ export default {
   padding: 20px;
   text-align: center;
   font-family: Arial, Helvetica, sans-serif;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  margin: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 h2 {
   color: #2c3e50;
