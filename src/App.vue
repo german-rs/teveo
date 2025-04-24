@@ -2,6 +2,8 @@
 import BrowserDetector from './components/BrowserDetector.vue'
 import OsDetector from './components/OsDetector.vue'
 import TimeZoneDetector from './components/TimeZoneDetector.vue'
+import CpuDetector from './components/CpuDetector.vue'
+import GeoLocation from './components/GeoLocation.vue'
 
 export default {
   name: 'App',
@@ -9,6 +11,8 @@ export default {
     BrowserDetector,
     OsDetector,
     TimeZoneDetector,
+    CpuDetector,
+    GeoLocation,
   },
 }
 </script>
@@ -21,6 +25,8 @@ export default {
     <BrowserDetector />
     <OsDetector />
     <TimeZoneDetector />
+    <CpuDetector />
+    <GeoLocation />
   </div>
 </template>
 
