@@ -2,8 +2,10 @@
 import BrowserDetector from './components/BrowserDetector.vue'
 import OsDetector from './components/OsDetector.vue'
 import TimeZoneDetector from './components/TimeZoneDetector.vue'
+// import LanguageDetector from './components/LanguageDetector.vue'
 import CpuDetector from './components/CpuDetector.vue'
 import GeoLocation from './components/GeoLocation.vue'
+import NetworkDetector from './components/NetworkDetector.vue'
 
 export default {
   name: 'App',
@@ -11,8 +13,10 @@ export default {
     BrowserDetector,
     OsDetector,
     TimeZoneDetector,
+    // LanguageDetector,
     CpuDetector,
     GeoLocation,
+    NetworkDetector,
   },
 }
 </script>
@@ -25,7 +29,9 @@ export default {
     <BrowserDetector />
     <OsDetector />
     <TimeZoneDetector />
+    <!-- <LanguageDetector /> -->
     <CpuDetector />
+    <NetworkDetector />
     <GeoLocation />
   </div>
 </template>
