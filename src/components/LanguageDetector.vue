@@ -27,49 +27,7 @@
         </div>
       </div>
 
-      <!-- Configuración del Sistema -->
-      <div class="info-card system-info">
-        <span class="label">Configuración del Sistema</span>
-        <div class="system-details">
-          <div class="detail-item">
-            <span>Formato de Fecha:</span>
-            <strong>{{ dateFormat }}</strong>
-          </div>
-          <div class="detail-item">
-            <span>Formato de Hora:</span>
-            <strong>{{ timeFormat }}</strong>
-          </div>
-          <div class="detail-item">
-            <span>Formato Numérico:</span>
-            <strong>{{ numberFormat }}</strong>
-          </div>
-        </div>
-      </div>
-
-      <!-- Ejemplos de Formato -->
-      <div class="info-card format-examples">
-        <span class="label">Ejemplos de Formato Local</span>
-        <div class="examples">
-          <div class="example-item">
-            <span>Fecha:</span>
-            <strong>{{ localizedDate }}</strong>
-          </div>
-          <div class="example-item">
-            <span>Hora:</span>
-            <strong>{{ localizedTime }}</strong>
-          </div>
-          <div class="example-item">
-            <span>Número:</span>
-            <strong>{{ localizedNumber }}</strong>
-          </div>
-          <div class="example-item">
-            <span>Moneda:</span>
-            <strong>{{ localizedCurrency }}</strong>
-          </div>
-        </div>
-      </div>
-
-      <!-- Información RTL/LTR -->
+      <!-- Dirección del Texto -->
       <div class="info-card direction-info">
         <span class="label">Dirección del Texto</span>
         <div class="direction-indicator">
@@ -106,18 +64,11 @@ export default {
   name: 'LanguageDetector',
   data() {
     return {
-      primaryLanguage: {
-        code: '',
-        name: '',
-        region: '',
-      },
+      primaryLanguage: { code: '', name: '', region: '' },
       preferredLanguages: [],
       showDetails: false,
       additionalInfo: {},
       textDirection: 'ltr',
-      dateFormat: '',
-      timeFormat: '',
-      numberFormat: '',
     }
   },
   computed: {
@@ -126,86 +77,47 @@ export default {
         ? 'De derecha a izquierda (RTL)'
         : 'De izquierda a derecha (LTR)'
     },
-    localizedDate() {
-      return new Date().toLocaleDateString(this.primaryLanguage.code, {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
-    },
-    localizedTime() {
-      return new Date().toLocaleTimeString(this.primaryLanguage.code, {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      })
-    },
-    localizedNumber() {
-      return (1234567.89).toLocaleString(this.primaryLanguage.code)
-    },
-    localizedCurrency() {
-      return (1234.56).toLocaleString(this.primaryLanguage.code, {
-        style: 'currency',
-        currency: this.getCurrencyCode(),
-      })
-    },
   },
   methods: {
     refreshLanguageInfo() {
       this.detectLanguages()
-      this.detectFormats()
       this.detectTextDirection()
       this.updateAdditionalInfo()
     },
     detectLanguages() {
-      // Obtener idiomas del navegador
       const languages = navigator.languages || [navigator.language]
-
       this.preferredLanguages = languages.map((lang) => {
         const [languageCode, regionCode] = lang.split('-')
-        return {
-          code: lang,
-          name: new Intl.DisplayNames([lang], { type: 'language' }).of(languageCode),
-          region: regionCode
-            ? new Intl.DisplayNames([lang], { type: 'region' }).of(regionCode)
-            : '',
+        let name = languageCode
+        let region = regionCode || ''
+
+        try {
+          const dnLang = new Intl.DisplayNames([lang], { type: 'language' })
+          name = dnLang.of(languageCode) || languageCode
+          if (regionCode) {
+            const dnRegion = new Intl.DisplayNames([lang], { type: 'region' })
+            region = dnRegion.of(regionCode) || regionCode
+          }
+        } catch (e) {
+          console.warn('Intl.DisplayNames no soportado en este navegador:', e)
         }
+
+        return { code: lang, name, region }
       })
 
-      // Establecer idioma principal
       this.primaryLanguage = this.preferredLanguages[0] || {
         code: 'en',
         name: 'English',
         region: '',
       }
     },
-    detectFormats() {
-      const locale = this.primaryLanguage.code
-
-      // Detectar formato de fecha
-      const dateFormatter = new Intl.DateTimeFormat(locale)
-      this.dateFormat = dateFormatter.resolvedOptions().locale
-
-      // Detectar formato numérico
-      const numberFormatter = new Intl.NumberFormat(locale)
-      this.numberFormat = numberFormatter.resolvedOptions().locale
-
-      // Detectar formato de hora
-      const timeFormatter = new Intl.DateTimeFormat(locale, {
-        hour: 'numeric',
-        minute: 'numeric',
-      })
-      this.timeFormat = timeFormatter.resolvedOptions().locale
-    },
     detectTextDirection() {
-      // Detectar dirección del texto basado en el idioma
       const rtlLanguages = ['ar', 'he', 'fa', 'ur']
       const primaryLangCode = this.primaryLanguage.code.split('-')[0]
       this.textDirection = rtlLanguages.includes(primaryLangCode) ? 'rtl' : 'ltr'
     },
     updateAdditionalInfo() {
-      const locale = this.primaryLanguage.code
+      const locale = this.primaryLanguage.code || 'en'
       const dtf = new Intl.DateTimeFormat(locale)
       const nf = new Intl.NumberFormat(locale)
 
@@ -214,23 +126,7 @@ export default {
         Numeración: nf.resolvedOptions().numberingSystem,
         'Zona Horaria': Intl.DateTimeFormat().resolvedOptions().timeZone,
         'Hour Cycle': dtf.resolvedOptions().hour12 ? '12h' : '24h',
-        'Separador Decimal': nf.format(1.1).charAt(1),
-        'Separador de Miles': nf.format(1000).charAt(1),
       }
-    },
-    getCurrencyCode() {
-      // Obtener código de moneda basado en la región
-      const regionMapping = {
-        ES: 'EUR',
-        US: 'USD',
-        GB: 'GBP',
-        JP: 'JPY',
-        MX: 'MXN',
-        // Agregar más mappings según necesidad
-      }
-
-      const region = this.primaryLanguage.code.split('-')[1]
-      return regionMapping[region] || 'USD'
     },
     toggleDetails() {
       this.showDetails = !this.showDetails
